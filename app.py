@@ -36,9 +36,21 @@ async def get_calendar():
       verify=False  # Disable SSL verification for self-signed certificate
     )
 
-    response.raise_for_status()  # Raise exception for b
-        
-    return response.text
+    response.raise_for_status()  # Raise exception for bad status codes
+    
+    import email.utils
+    return Response(
+      content=response.text,
+      media_type="text/calendar;charset=utf-8",
+      headers={
+        "Date": email.utils.formatdate(timeval=None, localtime=False, usegmt=True),
+        "Cache-Control": "public, max-age=3600",
+        "Content-Type": "text/calendar;charset=utf-8",
+        "Content-Disposition": "attachment; filename=calendar.ics",
+        "Vary": "Accept-Encoding, User-Agent",
+        "Transfer-Encoding": "chunked"
+      }
+    )
   
   except requests.exceptions.RequestException as e:
     raise HTTPException(
