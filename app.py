@@ -1,11 +1,8 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
-from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Response
+from dotenv import load_dotenv # type: ignore
 import os
-import requests
+import requests # type: ignore
 from datetime import datetime
-import calendar
-from typing import Dict, List, Optional
 
 # Load environment variables
 load_dotenv()
@@ -20,11 +17,11 @@ SERVER_PORT = int(os.getenv('SERVER_PORT', 8999))
 app = FastAPI()
 
 @app.get("/")
-async def root():
+async def root() -> dict:
   return {"message": "Hello from easy-peasy!", "env_loaded": True}
 
 @app.get("/v1/api/calendar")
-async def get_calendar():
+async def get_calendar() -> Response:
   if not ZIMBRA_USER or not ZIMBRA_PASSWORD or not ZIMBRA_URL:
     raise HTTPException(status_code=400, detail="Zimbra credentials or URL not configured")
     
@@ -38,12 +35,11 @@ async def get_calendar():
 
     response.raise_for_status()  # Raise exception for bad status codes
     
-    import email.utils
     return Response(
       content=response.text,
       media_type="text/calendar;charset=utf-8",
       headers={
-        "Date": email.utils.formatdate(timeval=None, localtime=False, usegmt=True),
+        "Date": datetime.now().strftime("%a, %d %b %Y %H:%M:%S GMT"),
         "Cache-Control": "public, max-age=3600",
         "Content-Type": "text/calendar;charset=utf-8",
         "Content-Disposition": "attachment; filename=calendar.ics",
