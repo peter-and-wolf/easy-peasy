@@ -17,7 +17,6 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 TOKEN_FILE = "token.json"
 CREDENTIALS_FILE = "google-calendar-creds.json"  
 CALENDAR_NAME = "Bloom"
-LOCALHOST = "127.0.0.1"
 
 
 def get_service() -> Any:
@@ -26,6 +25,7 @@ def get_service() -> Any:
     creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
   if not creds or not creds.valid:
     if creds and creds.expired and creds.refresh_token:
+      print("Refreshing token...")
       creds.refresh(Request())
     else:
       flow = InstalledAppFlow.from_client_secrets_file(
@@ -34,7 +34,6 @@ def get_service() -> Any:
       )
 
       creds = flow.run_local_server(
-        host=LOCALHOST,
         port=8080,
         access_type="offline",
         prompt="consent",
