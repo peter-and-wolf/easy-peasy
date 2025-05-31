@@ -13,3 +13,4 @@ temp.ipynb
 
 # Environment files
 .env
+token.json google-calendar-creds.json
