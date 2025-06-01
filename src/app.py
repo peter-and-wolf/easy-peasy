@@ -13,7 +13,7 @@ async def root() -> dict:
   return {"message": "Hello from easy-peasy!", "env_loaded": True}
 
 
-@app.get("/v1/api/calendar")
+@app.get("/api/v1/calendar")
 async def get_calendar() -> Response:
   if not settings.zimbra_user or not settings.zimbra_password or not settings.zimbra_url:
     raise HTTPException(status_code=400, detail="Zimbra credentials or URL not configured")
@@ -46,10 +46,10 @@ async def get_calendar() -> Response:
 
 
 if __name__ == "__main__":
-  #import uvicorn
-  #uvicorn.run(
-  #  app, 
-  #  host=settings.server_host, 
-  #  port=settings.server_port
-  #)
-  print("Hello from easy-peasy!")
+  import uvicorn
+  uvicorn.run(
+    app, 
+    host=settings.server_host, 
+    port=settings.server_port
+  )
+
