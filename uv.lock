@@ -405,8 +405,10 @@ dependencies = [
     { name = "icalevents" },
     { name = "notebook" },
     { name = "pydantic-settings" },
+    { name = "python-dateutil" },
     { name = "pytz" },
     { name = "typer" },
+    { name = "types-icalendar" },
     { name = "uvicorn" },
 ]
 
@@ -424,8 +426,10 @@ requires-dist = [
     { name = "icalevents", specifier = ">=0.2.1" },
     { name = "notebook", specifier = ">=7.4.3" },
     { name = "pydantic-settings", specifier = ">=2.9.1" },
+    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "pytz", specifier = ">=2025.2" },
     { name = "typer", specifier = ">=0.16.0" },
+    { name = "types-icalendar", specifier = ">=6.3.1.20250521" },
     { name = "uvicorn", specifier = ">=0.34.2" },
 ]
 
@@ -1903,12 +1907,34 @@ wheels = [
 ]
 
 [[package]]
+name = "types-icalendar"
+version = "6.3.1.20250521"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "types-python-dateutil" },
+    { name = "types-pytz" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3f/b5/780038cefd18dce653f4ec54bc5975a526dc285ad9ceab2563090f1a7eb9/types_icalendar-6.3.1.20250521.tar.gz", hash = "sha256:c8fdc7e6afd39973191bb67cec5a5918c1bf4cdde64ae8c44cbc0cfa4e31a1ef", size = 17955 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/58/87/936a19a98ab8444e2ea4b5dbe26875173d22653690fc87b3ce6399d3a172/types_icalendar-6.3.1.20250521-py3-none-any.whl", hash = "sha256:449cacdd0e5768e148753722e34c38b13e4078973b7174a5b0b938159ce32fae", size = 23072 },
+]
+
+[[package]]
 name = "types-python-dateutil"
 version = "2.9.0.20250516"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ef/88/d65ed807393285204ab6e2801e5d11fbbea811adcaa979a2ed3b67a5ef41/types_python_dateutil-2.9.0.20250516.tar.gz", hash = "sha256:13e80d6c9c47df23ad773d54b2826bd52dbbb41be87c3f339381c1700ad21ee5", size = 13943 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c5/3f/b0e8db149896005adc938a1e7f371d6d7e9eca4053a29b108978ed15e0c2/types_python_dateutil-2.9.0.20250516-py3-none-any.whl", hash = "sha256:2b2b3f57f9c6a61fba26a9c0ffb9ea5681c9b83e69cd897c6b5f668d9c0cab93", size = 14356 },
+]
+
+[[package]]
+name = "types-pytz"
+version = "2025.2.0.20250516"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/bd/72/b0e711fd90409f5a76c75349055d3eb19992c110f0d2d6aabbd6cfbc14bf/types_pytz-2025.2.0.20250516.tar.gz", hash = "sha256:e1216306f8c0d5da6dafd6492e72eb080c9a166171fa80dd7a1990fd8be7a7b3", size = 10940 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/ba/e205cd11c1c7183b23c97e4bcd1de7bc0633e2e867601c32ecfc6ad42675/types_pytz-2025.2.0.20250516-py3-none-any.whl", hash = "sha256:e0e0c8a57e2791c19f718ed99ab2ba623856b11620cb6b637e5f62ce285a7451", size = 10136 },
 ]
 
 [[package]]

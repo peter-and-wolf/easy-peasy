@@ -1,10 +1,16 @@
 import sqlite3
 import hashlib
+from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass
 
 from caldav import DAVClient
+from uritemplate import expand
 
-from config import calwatch_config
+from config import (
+  calwatch_config, 
+  zimbra_config, 
+  google_config
+)
 
 
 @dataclass
@@ -43,11 +49,12 @@ def init_db() -> sqlite3.Connection:
 
 
 def hash_event(summary, dtstart, dtend):
-  combined = f"{summary}|{dtstart}|{dtend}"
+  combined = f'{summary}|{dtstart}|{dtend}'
   return hashlib.md5(combined.encode('utf-8')).hexdigest()
 
 
 def fetch_calendar_events(client):
+  now = datetime.now(timezone.utc)
   principal = client.principal()
   events = []
   for calendar in principal.calendars():
@@ -55,10 +62,17 @@ def fetch_calendar_events(client):
       try:
         vevent = event.vobject_instance.vevent
         uid = vevent.uid.value
-        summary = vevent.summary.value if hasattr(vevent, 'summary') else ''
-        dtstart = str(vevent.dtstart.value)
-        dtend = str(vevent.dtend.value) if hasattr(vevent, 'dtend') else ''
+        summary = vevent.summary.value
+        dtstart = vevent.dtstart.value
+        dtend = vevent.dtend.value
+        rrule_field = vevent.rrule.value
+        
+        if rrule_field:
+          print(dtstart)
+          print(type(rrule_field))
+
         hash_value = hash_event(summary, dtstart, dtend)
+        
         events.append(
           CalendarEvent(
             uid=uid, 
@@ -125,19 +139,23 @@ def main():
   conn = init_db()
 
   client = DAVClient(
-    url=str(calwatch_config.zimbra_url),
-    username=calwatch_config.zimbra_user,
-    password=calwatch_config.zimbra_password
+    url=str(zimbra_config.url),
+    username=zimbra_config.user,
+    password=zimbra_config.password
   )
 
   print("fetching calendar events...")
   events = fetch_calendar_events(client)
-  print("loading previous events...") 
-  previous_events = load_previous_events(conn)
-  print("saving current events...")
-  save_current_events(conn, events)
-  print("diffing events...")
-  diff_events(previous_events, events)
+
+  #for e in sorted(events, key=lambda e: e.dtstart):
+  #  print(f"{e.dtstart} — {e.summary}")
+
+  #print("loading previous events...") 
+  #previous_events = load_previous_events(conn)
+  #print("saving current events...")
+  #save_current_events(conn, events)
+  #print("diffing events...")
+  #diff_events(previous_events, events)
 
 
 if __name__ == "__main__":
