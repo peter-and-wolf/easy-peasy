@@ -1,10 +1,11 @@
+import calendar
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-class CalwatchConfig(BaseSettings):
-  db_file: str = "calwatch.db"
+class SyncConfig(BaseSettings):
+  db_file: str = "sync.db"
 
   model_config = SettingsConfigDict(
-    env_prefix="CALWATCH_",
+    env_prefix="SYNC_",
     env_file=".env",
     env_file_encoding="utf-8",
     extra="ignore"
@@ -14,6 +15,7 @@ class CalwatchConfig(BaseSettings):
 class ZimbraConfig(BaseSettings):
   user: str = ""
   password: str = ""
+  calendar_name: str = "Calendar"
   url_template: str = "https://mail.bloomtech.ru/dav/{user}"
     
   model_config = SettingsConfigDict(
@@ -45,7 +47,7 @@ class GoogleConfig(BaseSettings):
     return self.url_template.format(user=self.user)
 
 
-calwatch_config = CalwatchConfig() 
+sync_config = SyncConfig() 
 zimbra_config = ZimbraConfig() 
 google_config = GoogleConfig()
 

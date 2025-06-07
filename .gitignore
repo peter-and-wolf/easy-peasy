@@ -16,3 +16,4 @@ temp.ipynb
 token.json 
 google-calendar-creds.json
 calwatch.db
+sync.db

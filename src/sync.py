@@ -3,9 +3,10 @@ from datetime import (
   timezone 
 )
 
+import db
 import zcal
 import gcal
-from models import CalendarEvent
+from models import CalendarEvent, SyncEvent, EventStatus
 from config import (
   google_config, 
   zimbra_config
@@ -17,34 +18,57 @@ def make_index(events: list[CalendarEvent]) -> dict[str, CalendarEvent]:
 
 
 def main():
-  zevents = zcal.fetch_events(
-    zcal.get_calendar(
-      zcal.DAVClient(
-        url=str(zimbra_config.url),
-        username=zimbra_config.user,
-        password=zimbra_config.password
-      ), 
-      "Calendar"
+  conn = db.connect()
+
+  zimbra = zcal.get_calendar(
+    zcal.DAVClient(
+      url=str(zimbra_config.url),
+      username=zimbra_config.user,
+      password=zimbra_config.password
     ), 
+    zimbra_config.calendar_name
+  )
+
+  google = gcal.get_service()
+
+  zevents = zcal.fetch_events(
+    zimbra,
     from_date=datetime.now(timezone.utc)
   )
 
   gevents = gcal.fetch_events(
-    gcal.get_service(),
-    "Bloom",
+    google,
+    google_config.calendar_name,
     from_date=datetime.now(timezone.utc)
   )
 
-  zindex = make_index(zevents)
-  gindex = make_index(gevents)
-
-  print(gindex)
-
-  for event in zevents:
-    if event.uid in gindex:
-      print(f"Event {event.uid} already exists in Google Calendar")
+  for uid, event in sorted(zevents.items(), key=lambda e: e[1].dtstart):  
+    if db.get_sync_zevent(conn, uid):
+      print('Event already exists in sync db')
     else:
-      print(f"Creating event {event.uid} in Google Calendar")
+      guid = gcal.create_event(google, event, google_config.calendar_name)
+      db.save_sync_event(conn, 
+        SyncEvent(
+          uid=uid,
+          zimbra_uid=uid,
+          google_uid=guid,
+          last_modified=datetime.now(timezone.utc),
+          status=int(EventStatus.ACTIVE),
+          hash=event.hash
+        )
+      )
+    print(f'{uid}: {event}')
+    print()
+    
+
+  #zindex = make_index(zevents)
+  #gindex = make_index(gevents)
+
+  #for event in zevents:
+  #  if event.uid in gindex:
+  #    print(f"Event {event.uid} already exists in Google Calendar")
+  #  else:
+  #    print(f"Creating event {event.uid} in Google Calendar")
       #gcal.create_event(
       #  gcal.get_service(),
       #  event,

@@ -1,6 +1,12 @@
 from hashlib import md5
 from dataclasses import dataclass
 from datetime import datetime
+from enum import IntEnum
+
+
+class EventStatus(IntEnum):
+  ACTIVE = 1
+  DELETED = 2
 
 
 @dataclass
@@ -29,5 +35,16 @@ class CalendarEvent:
     if not self.rrule.startswith("RRULE:"):
       return "RRULE:" + self.rrule
     return self.rrule
+
+
+@dataclass
+class SyncEvent:
+  uid: int
+  zimbra_uid: str
+  google_uid: str
+  last_modified: datetime
+  status: EventStatus
+  hash: str
+  
     
   

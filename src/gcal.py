@@ -58,7 +58,7 @@ def get_calendar_id(service: Any, calendar_name: str) -> str:
   raise ValueError(f"Календарь с названием {calendar_name} не найден")
 
 
-def fetch_events(service: Any, calendar_name: str, from_date: datetime) -> list[CalendarEvent]:
+def fetch_events(service: Any, calendar_name: str, from_date: datetime) -> dict[str, CalendarEvent]:
   calendar_id = get_calendar_id(service, calendar_name)
   events_result = service.events().list(
     calendarId=calendar_id,
@@ -69,7 +69,7 @@ def fetch_events(service: Any, calendar_name: str, from_date: datetime) -> list[
     orderBy='updated'
   ).execute()
 
-  events = []
+  events = {}
   for event in events_result.get("items", []):
     if 'start' not in event or 'end' not in event:
       continue
@@ -79,18 +79,16 @@ def fetch_events(service: Any, calendar_name: str, from_date: datetime) -> list[
     recurrence = event.get('recurrence', [])
     rrule = recurrence[0] if recurrence else ""
 
-    events.append(
-      CalendarEvent(
-        uid=event['id'],
-        external_id=event.get('extendedProperties', {}).get('private', {}).get('external_event_id', None),
-        summary=event.get('summary', ''),
-        dtstart=datetime.fromisoformat(start).astimezone(timezone.utc),
-        dtend=datetime.fromisoformat(end).astimezone(timezone.utc),
-        last_modified=datetime.fromisoformat(last_modified).astimezone(timezone.utc),
-        description=event.get('description', ''),
-        location=event.get('location', ''),
-        rrule=rrule
-      )
+    events[event['id']] = CalendarEvent(
+      uid=event['id'],
+      external_id=event.get('extendedProperties', {}).get('private', {}).get('external_event_id', None),
+      summary=event.get('summary', ''),
+      dtstart=datetime.fromisoformat(start).astimezone(timezone.utc),
+      dtend=datetime.fromisoformat(end).astimezone(timezone.utc),
+      last_modified=datetime.fromisoformat(last_modified).astimezone(timezone.utc),
+      description=event.get('description', ''),
+      location=event.get('location', ''),
+      rrule=rrule
     )
 
   return events
@@ -122,8 +120,8 @@ def create_event(service, event: CalendarEvent, calendar_name: str) -> str:
 def main():
   service = get_service()
   events = fetch_events(service, "Bloom", datetime.now(timezone.utc))
-  for event in events:  
-    print(event)
+  for key, event in events.items():  
+    print(f"{key}: {event}")  
 
 
 if __name__ == "__main__":

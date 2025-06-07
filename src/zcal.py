@@ -21,8 +21,8 @@ def get_calendar(client: DAVClient, calendar_name: str) -> Calendar:
   raise ValueError(f'Calendar named {calendar_name} not found')
 
 
-def fetch_events(calendar: Calendar, from_date: datetime) -> list[CalendarEvent]:
-  events = []
+def fetch_events(calendar: Calendar, from_date: datetime) -> dict[str, CalendarEvent]:
+  events = {}
   for event in calendar.events():
     cal = ICalendar.from_ical(event.data)
     for e in cal.walk():
@@ -55,18 +55,16 @@ def fetch_events(calendar: Calendar, from_date: datetime) -> list[CalendarEvent]
           if isinstance(dtend, datetime) is False:
             dtend = datetime.combine(dtend, datetime.min.time()).replace(tzinfo=timezone.utc)
 
-          events.append(
-            CalendarEvent(
-              uid=uid,
-              external_id=external_id,
-              summary=summary,
-              dtstart=dtstart,
-              dtend=dtend,
-              last_modified=last_modified,
-              description=description,
-              location=location,
-              rrule=rrule_txt
-            )
+          events[uid] = CalendarEvent(
+            uid=uid,
+            external_id=external_id,
+            summary=summary,
+            dtstart=dtstart,
+            dtend=dtend,
+            last_modified=last_modified,
+            description=description,
+            location=location,
+            rrule=rrule_txt
           )
 
   return events
@@ -81,8 +79,8 @@ def main():
 
   calendar = get_calendar(client, 'Calendar')
   events = fetch_events(calendar, datetime.now(timezone.utc))
-  for event in sorted(events, key=lambda e: e.dtstart):
-    print(event)
+  for key, event in sorted(events.items(), key=lambda e: e[1].dtstart):
+    print(f"{key}: {event}")
     print()
 
 
